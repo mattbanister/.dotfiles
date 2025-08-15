@@ -43,4 +43,11 @@ zsh_add_plugin "zsh-users/zsh-autosuggestions"
 zsh_add_plugin "zsh-users/zsh-syntax-highlighting"
 zsh_add_plugin "hlissner/zsh-autopair"
 
+# pyenv
+if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
+pyenv virtualenvwrapper
+
+#cargo
+source $HOME/.cargo/env
+
 test -e ".iterm2_shell_integration.zsh" && source ".iterm2_shell_integration.zsh" || true
