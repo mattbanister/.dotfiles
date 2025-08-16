@@ -16,9 +16,9 @@ unsetopt BEEP
 # completions
 autoload -Uz compinit
 zstyle ':completion:*' menu select
-# zstyle ':completion::complete:lsof:*' menu yes select
+zstyle ':completion:*' matcher-list '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' '+l:|=* r:|=*'
 zmodload zsh/complist
-# compinit
+compinit
 _comp_options+=(globdots)		# Include hidden files.
 
 autoload -U up-line-or-beginning-search
