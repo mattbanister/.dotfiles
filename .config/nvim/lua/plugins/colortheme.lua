@@ -7,7 +7,7 @@ return {
       italic = {
         comments = false
       },
-      contrast = "hard"
+      contrast = "soft"
     })
     vim.o.background = "dark"
     vim.cmd("colorscheme gruvbox")
