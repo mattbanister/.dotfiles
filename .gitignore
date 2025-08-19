@@ -1,2 +1,4 @@
 .config/zsh/plugins/
 .zcompdump
+.zsh_history
+
