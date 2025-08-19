@@ -43,7 +43,7 @@ zsh_add_plugin "hlissner/zsh-autopair"
 
 # pyenv
 if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
-pyenv virtualenvwrapper
+pyenv virtualenvwrapper_lazy
 
 #cargo
 source $HOME/.cargo/env
