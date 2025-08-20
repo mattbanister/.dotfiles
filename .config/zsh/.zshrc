@@ -1,5 +1,11 @@
 #!/bin/sh
 
+DEBUG=false
+
+if [ $DEBUG = true ]; then 
+    zmodload zsh/zprof
+fi
+
 HISTFILE=~/.zsh_history
 setopt appendhistory
 
@@ -42,10 +48,17 @@ zsh_add_plugin "zsh-users/zsh-syntax-highlighting"
 zsh_add_plugin "hlissner/zsh-autopair"
 
 # pyenv
-if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
-pyenv virtualenvwrapper_lazy
+pyenv() {
+    if which pyenv > /dev/null; then eval "$(command pyenv init -)"; fi
+    pyenv "$@"
+    pyenv virtualenvwrapper_lazy
+}
 
 #cargo
 source $HOME/.cargo/env
 
 test -e ".iterm2_shell_integration.zsh" && source ".iterm2_shell_integration.zsh" || true
+
+if [ $DEBUG = true ]; then 
+    zprof
+fi
