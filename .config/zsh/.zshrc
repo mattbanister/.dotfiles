@@ -61,6 +61,14 @@ pyenv() {
 #cargo
 source $HOME/.cargo/env
 
+#sledge:binary path
+export SLEDGE_BIN=/Users/mub0002/.sledge/bin
+export PATH="${PATH}:${SLEDGE_BIN}"
+
+#dotnet core
+export PATH="$PATH:/Users/mub0002/.dotnet/tools"
+
 if [ $DEBUG = true ]; then 
     zprof
 fi
+
