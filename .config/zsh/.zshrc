@@ -49,9 +49,13 @@ zsh_add_plugin "hlissner/zsh-autopair"
 
 # pyenv
 pyenv() {
+    case ":$PATH:" in
+	*:$HOME/.pyenv/shims:*) echo "pyenv shims found on path.";;
+	*) echo "pyenv shims not found on path.  Initializing pyenv and virtualenvwrapper...\n";;
+    esac
     if which pyenv > /dev/null; then eval "$(command pyenv init -)"; fi
-    pyenv "$@"
     pyenv virtualenvwrapper_lazy
+    pyenv "$@"
 }
 
 #cargo
