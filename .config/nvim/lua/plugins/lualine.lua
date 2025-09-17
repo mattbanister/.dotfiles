@@ -40,7 +40,7 @@ return {
     require('lualine').setup {
       options = {
         icons_enabled = true,
-        theme = 'gruvbox-material', -- Set theme based on environment variable
+        theme = 'catppuccin-mocha', -- Set theme based on environment variable
         -- Some useful glyphs:
         -- https://www.nerdfonts.com/cheat-sheet
         --        
@@ -70,4 +70,3 @@ return {
     }
   end,
 }
-
