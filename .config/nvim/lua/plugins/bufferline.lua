@@ -41,7 +41,6 @@ return {
         maximum_length = 15,
         sort_by = 'insert_at_end',
       },
-      highlights = require('catppuccin.groups.integrations.bufferline').get_theme(),
     }
   end,
 }
