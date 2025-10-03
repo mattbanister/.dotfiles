@@ -12,7 +12,7 @@ zstyle ':vcs_info:git:*' check-for-changes true
 zstyle ':vcs_info:git*+set-message:*' hooks git-untracked join-markers
 
 # Now that colors are initialized, these expand to real ANSI codes
-zstyle ':vcs_info:git:*' formats "%{$reset_color%}[%{$fg[red]%}%b%m%{$reset_color%}]"
+zstyle ':vcs_info:git:*' formats " %{$reset_color%}[%{$fg[red]%}%b%m%{$reset_color%}]"
 
 # Hook implementation for untracked indicator
 #+vi-git-untracked appends a bang to the staged marker when untracked files exist
@@ -38,5 +38,5 @@ zstyle ':vcs_info:git:*' formats "%{$reset_color%}[%{$fg[red]%}%b%m%{$reset_colo
     fi
 }
 
-PROMPT='%n@%m %{$fg[blue]%}%~%{$reset_color%} ${vcs_info_msg_0_} > '
+PROMPT='%n@%m %{$fg[blue]%}%~%{$reset_color%}${vcs_info_msg_0_} > '
 
