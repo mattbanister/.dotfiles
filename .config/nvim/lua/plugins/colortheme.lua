@@ -1,12 +1,27 @@
 return {
-  'neanias/everforest-nvim',
-  version = false,
-  lazy = false,
-  priority = 1000,
-  config = function()
-    require('everforest').setup {
-      -- Your config here
-    }
-    vim.cmd [[colorscheme everforest]]
-  end,
+  {
+    'catppuccin/nvim',
+    name = 'catppuccin',
+    priority = 1000, -- Load this before all other plugins
+    config = function()
+      require('catppuccin').setup {
+        flavour = 'mocha', -- latte, frappe, macchiato, mocha
+        transparent_background = false,
+        integrations = {
+          cmp = true,
+          gitsigns = true,
+          nvimtree = true,
+          treesitter = true,
+          notify = false,
+          mini = {
+            enabled = true,
+            indentscope_color = '',
+          },
+        },
+      }
+
+      -- Set the colorscheme
+      vim.cmd.colorscheme 'catppuccin'
+    end,
+  },
 }
