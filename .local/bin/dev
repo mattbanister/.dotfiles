@@ -1,36 +1,37 @@
 #!/usr/bin/env bash
 
+# ── Configuration ─────────────────────────────────────────────
 SESSION="dev"
+EDITOR_CMD="nvim"
+AI_CMD="claude"
+RIGHT_WIDTH="28%"
+BOTTOM_HEIGHT="21%"
+# ──────────────────────────────────────────────────────────────
+
+setup_layout() {
+  local main="$1"
+  local right bottom
+  right=$(tmux split-window -h -t "$main" -l "$RIGHT_WIDTH" -P -F '#{pane_id}')
+  bottom=$(tmux split-window -v -t "$main" -l "$BOTTOM_HEIGHT" -P -F '#{pane_id}')
+  tmux resize-pane -t "$right"  -x "$RIGHT_WIDTH"
+  tmux resize-pane -t "$bottom" -y "$BOTTOM_HEIGHT"
+  tmux send-keys -t "$main"  "$EDITOR_CMD" Enter
+  tmux send-keys -t "$right" "$AI_CMD"     Enter
+  tmux select-pane -t "$main"
+}
+
+if [ -n "$TMUX" ]; then
+  setup_layout "$(tmux new-window -P -F '#{pane_id}')"
+  exit 0
+fi
 
 if tmux has-session -t "$SESSION" 2>/dev/null; then
   tmux attach-session -t "$SESSION"
   exit 0
 fi
 
-# Create the session detached at the real terminal size so the split
-# percentages are computed against the actual geometry rather than tmux's
-# default 80x24. Capture the first pane's id (robust against base-index /
-# pane-base-index settings).
 MAIN=$(tmux new-session -d -s "$SESSION" \
   -x "$(tput cols)" -y "$(tput lines)" \
   -P -F '#{pane_id}')
-
-# Right column: split off 20% width for claude.
-RIGHT=$(tmux split-window -h -t "$MAIN" -l 28% -P -F '#{pane_id}')
-
-# Bottom-left: terminal (15% height of left column), left as a plain shell.
-BOTTOM=$(tmux split-window -v -t "$MAIN" -l 21% -P -F '#{pane_id}')
-
-# Force the pane sizes explicitly so they override any sizes tmux would
-# otherwise restore/recompute (e.g. on attach or from a saved layout).
-tmux resize-pane -t "$RIGHT" -x 28%
-tmux resize-pane -t "$BOTTOM" -y 21%
-
-# Launch programs.
-tmux send-keys -t "$MAIN" "nvim" Enter
-tmux send-keys -t "$RIGHT" "claude" Enter
-
-# Focus nvim.
-tmux select-pane -t "$MAIN"
-
+setup_layout "$MAIN"
 tmux attach-session -t "$SESSION"
