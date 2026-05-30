@@ -61,9 +61,22 @@ pyenv() {
 #cargo
 source $HOME/.cargo/env
 
+#sledge:binary path
+export SLEDGE_BIN=/Users/mub0002/.sledge/bin
+export PATH="${PATH}:${SLEDGE_BIN}"
+
+#dotnet core
+export PATH="$PATH:/Users/mub0002/.dotnet/tools"
+
+#JDK 25
+export JAVA_HOME=`/usr/libexec/java_home -v 25.0`
+
 if [ $DEBUG = true ]; then 
     zprof
 fi
 
-# added by claude code
-export PATH="$HOME/.local/bin:$PATH"
+# Added by Wibey CLI installation
+export PATH="/Users/mub0002/.local/bin:$PATH"
+
+# Added by Wibey CLI installation
+export BUN_INSTALL_CACHE_DIR="/Users/mub0002/.local/share/bun/cache"
