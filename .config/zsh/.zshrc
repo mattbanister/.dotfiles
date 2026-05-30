@@ -64,3 +64,4 @@ source $HOME/.cargo/env
 if [ $DEBUG = true ]; then 
     zprof
 fi
+export PATH="$HOME/.local/bin:$PATH"

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+SESSION="dev"
+
+if tmux has-session -t "$SESSION" 2>/dev/null; then
+  tmux attach-session -t "$SESSION"
+  exit 0
+fi
+
+# Create the session detached at the real terminal size so the split
+# percentages are computed against the actual geometry rather than tmux's
+# default 80x24. Capture the first pane's id (robust against base-index /
+# pane-base-index settings).
+MAIN=$(tmux new-session -d -s "$SESSION" \
+  -x "$(tput cols)" -y "$(tput lines)" \
+  -P -F '#{pane_id}')
+
+# Right column: split off 20% width for claude.
+RIGHT=$(tmux split-window -h -t "$MAIN" -l 28% -P -F '#{pane_id}')
+
+# Bottom-left: terminal (15% height of left column), left as a plain shell.
+BOTTOM=$(tmux split-window -v -t "$MAIN" -l 21% -P -F '#{pane_id}')
+
+# Force the pane sizes explicitly so they override any sizes tmux would
+# otherwise restore/recompute (e.g. on attach or from a saved layout).
+tmux resize-pane -t "$RIGHT" -x 28%
+tmux resize-pane -t "$BOTTOM" -y 21%
+
+# Launch programs.
+tmux send-keys -t "$MAIN" "nvim" Enter
+tmux send-keys -t "$RIGHT" "claude" Enter
+
+# Focus nvim.
+tmux select-pane -t "$MAIN"
+
+tmux attach-session -t "$SESSION"
