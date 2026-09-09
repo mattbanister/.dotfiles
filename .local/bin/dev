@@ -13,29 +13,32 @@ window_exists() {
 
 setup_windows() {
   local session="$1"
-  tmux send-keys -t "$session:nvim" "$EDITOR_CMD" Enter
+  if ! window_exists "$session" nvim; then
+    tmux new-window -d -a -t "$session:{end}" -n nvim
+    tmux send-keys -t "$session:nvim" "$EDITOR_CMD" Enter
+  fi
   if ! window_exists "$session" wibey; then
-    tmux new-window -t "$session" -n wibey
+    tmux new-window -d -a -t "$session:{end}" -n wibey
     tmux send-keys -t "$session:wibey" "$AI_CMD" Enter
   fi
   if ! window_exists "$session" term; then
-    tmux new-window -t "$session" -n term
+    tmux new-window -d -a -t "$session:{end}" -n term
   fi
   tmux select-window -t "$session:nvim"
 }
 
 if [ -n "$TMUX" ]; then
   CURRENT=$(tmux display-message -p '#{session_name}')
-  if window_exists "$CURRENT" nvim; then
-    tmux select-window -t "$CURRENT:nvim"
-  else
-    tmux rename-window -t "$CURRENT" nvim
-    setup_windows "$CURRENT"
+  if ! window_exists "$CURRENT" nvim; then
+    tmux new-window -d -a -t "$CURRENT:{end}" -n nvim
+    tmux send-keys -t "$CURRENT:nvim" "$EDITOR_CMD" Enter
   fi
+  setup_windows "$CURRENT"
   exit 0
 fi
 
 if tmux has-session -t "$SESSION" 2>/dev/null; then
+  setup_windows "$SESSION"
   tmux attach-session -t "$SESSION"
   exit 0
 fi
