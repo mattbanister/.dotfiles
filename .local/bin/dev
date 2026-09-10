@@ -11,28 +11,73 @@ window_exists() {
   tmux list-windows -t "$session" -F '#{window_name}' 2>/dev/null | grep -qx "$window"
 }
 
+# True if the window exists AND its pane is running something other than a
+# plain shell (i.e. the command we launched into it is still alive).
+command_running() {
+  local session="$1" window="$2"
+  local cmd
+  cmd=$(tmux list-panes -t "$session:$window" -F '#{pane_current_command}' 2>/dev/null | head -n1)
+  [ -n "$cmd" ] && ! printf '%s' "$cmd" | grep -qxE 'zsh|bash|sh|fish'
+}
+
+# Reorder windows so nvim=BASE, wibey=BASE+1, term=BASE+2, everything else=BASE+3+
+reorder_windows() {
+  local session="$1"
+  local base
+  base=$(tmux show-options -gv base-index 2>/dev/null)
+  [ -z "$base" ] && base=0
+
+  # Park every window at a high, guaranteed-free index, preserving current order.
+  local i=1000
+  local idx
+  while IFS= read -r idx; do
+    tmux move-window -s "$session:$idx" -t "$session:$i"
+    i=$((i + 1))
+  done < <(tmux list-windows -t "$session" -F '#{window_index}')
+
+  # Place the fixed three first.
+  for name in nvim wibey term; do
+    idx=$(tmux list-windows -t "$session" -F '#{window_index} #{window_name}' | awk -v n="$name" '$2==n{print $1; exit}')
+    case "$name" in
+      nvim) tmux move-window -s "$session:$idx" -t "$session:$base" ;;
+      wibey) tmux move-window -s "$session:$idx" -t "$session:$((base + 1))" ;;
+      term) tmux move-window -s "$session:$idx" -t "$session:$((base + 2))" ;;
+    esac
+  done
+
+  # Compact any remaining (extra) windows into base+3, base+4, ...
+  local next=$((base + 3))
+  tmux list-windows -t "$session" -F '#{window_index}' | while IFS= read -r idx; do
+    if [ "$idx" -ge 1000 ]; then
+      tmux move-window -s "$session:$idx" -t "$session:$next"
+      next=$((next + 1))
+    fi
+  done
+}
+
 setup_windows() {
   local session="$1"
   if ! window_exists "$session" nvim; then
     tmux new-window -d -a -t "$session:{end}" -n nvim
     tmux send-keys -t "$session:nvim" "$EDITOR_CMD" Enter
+  elif ! command_running "$session" nvim; then
+    tmux send-keys -t "$session:nvim" "$EDITOR_CMD" Enter
   fi
   if ! window_exists "$session" wibey; then
     tmux new-window -d -a -t "$session:{end}" -n wibey
+    tmux send-keys -t "$session:wibey" "$AI_CMD" Enter
+  elif ! command_running "$session" wibey; then
     tmux send-keys -t "$session:wibey" "$AI_CMD" Enter
   fi
   if ! window_exists "$session" term; then
     tmux new-window -d -a -t "$session:{end}" -n term
   fi
+  reorder_windows "$session"
   tmux select-window -t "$session:nvim"
 }
 
 if [ -n "$TMUX" ]; then
   CURRENT=$(tmux display-message -p '#{session_name}')
-  if ! window_exists "$CURRENT" nvim; then
-    tmux new-window -d -a -t "$CURRENT:{end}" -n nvim
-    tmux send-keys -t "$CURRENT:nvim" "$EDITOR_CMD" Enter
-  fi
   setup_windows "$CURRENT"
   exit 0
 fi
